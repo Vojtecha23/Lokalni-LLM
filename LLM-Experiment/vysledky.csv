@@ -1,0 +1,312 @@
+﻿Model;Test;Cas_s;Kod;Odpoved
+qwen-csharp;1;6,03;"int cislo = ""10""; Console.WriteLine(cislo);";"V kódu je chyba, protože proměnná `cislo` je inicializována jako `int`, ale její hodnota je nastavena na string ""10"". V C# nemůžete při vypsání hodnoty použít typ `int` pro stringovou hodnotu. 
+
+Opravený kód by měl být:
+
+```csharp
+string cislo = ""10""; 
+Console.WriteLine(cislo);
+```
+
+V tomto případě je `cislo` typu `string`, takže je možné vypsat jej pomocí `Console.WriteLine(cislo);`."
+qwen-csharp;2;5,64;"int x = 10 Console.WriteLine(x);";"V zadání kódu je chyba. V kódu není zadáno zadání, které by mělo výsledek 10. Pokud chcete, aby byl výsledek 10, musíte nějakými způsobem vytvořit proměnnou `x` a jí přiřadit hodnotu 10. Toto je správný kód:
+
+```csharp
+int x = 10;
+Console.WriteLine(x);
+```
+
+Výsledek tento kód vypíše bude 10."
+qwen-csharp;3;9,16;"string text = null; Console.WriteLine(text.Length);";"V kódu je chyba, která se objevuje v tomto řádku:
+
+```csharp
+string text = null; Console.WriteLine(text.Length);
+```
+
+Chyba spočívá v tom, že se pokusíte použít metodu `Length` na objektu typu `null`. Metoda `Length` je definována pro objekty typu `string`, a `null` není platným objektem typu `string`. 
+
+Opravený kód by měl vypadat následovně:
+
+```csharp
+string text = null; 
+if (text != null) 
+{ 
+    Console.WriteLine(text.Length); 
+}
+```
+
+Opravuji to tak, že před použitím `Length` kontroluji, že `text` není `null`. Pokud je `text` `null`, nevykáváme `Length` a nevypíšeme žádné chybové hlášení."
+qwen-csharp;4;10,76;"int[] pole = {1, 2, 3}; Console.WriteLine(pole[3]);";"V kódu je chyba, která se nazývá ""index outside of bounds"". Tato chyba se vztahuje na pokus o přístup k indexu 3 k pole, které má pouze 4 prvky (pole[0], pole[1], pole[2], pole[3]). Pole v C# je 0-indexované, což znamená, že první prvek má index 0, druhý prvek má index 1 a tak dále. Proto se pole[3] pokouší o přístup k prvnímu prvkovi, který není dostupný.
+
+Opravený kód by měl vypadat následovně:
+
+```csharp
+int[] pole = {1, 2, 3};
+Console.WriteLine(pole[2]); // index 2 odpovídá na prvek 3
+```
+
+V tomto případě by bylo správně zapsáno Console.WriteLine(pole[2]);, protože pole má pouze 3 prvky a index 2 odpovídá na prvek 3."
+qwen-csharp;5;15,48;"int a = 10; int b = 0; Console.WriteLine(a / b);";"V kódu je chyba, která se týká nulového dělení. V C# nelze dělit číslem 0. Tato chyba může vést k runtime chyb, protože systém vypíše nějaký nečekaný výsledek nebo se může nebojí a nevykáže žádnou chybu.
+
+Opravený kód:
+
+```csharp
+int a = 10; 
+int b = 0; 
+Console.WriteLine(a / b); // Chyba: nulové dělení
+```
+
+Opravení:
+
+```csharp
+int a = 10; 
+int b = 0; 
+Console.WriteLine(a % b); // Použijeme modulární operátor, pokud se chystáte k nulovému dělení
+```
+
+Nebo:
+
+```csharp
+int a = 10; 
+int b = 1; // Změna b na 1, aby se nepřišlo k nulovému dělení
+Console.WriteLine(a / b);
+```
+
+Je důležité si uvědomit, že pokud se b rovná 0, bude tento kód vyvolávat runtime chybu. V praxi by se měl použít modulární operátor (%) pro nulové dělení, který vrátí zbytek z dělení, což je vhodné pro některé aplikace."
+qwen-csharp;6;11,75;"bool stav = 5;";"V kódu `bool stav = 5;` je chyba. V C# nemůžete při deklaraci proměnné použít konstantní hodnotu, jako je číslo 5, když se jedná o typ `bool`. `bool` může mít pouze dvě možné hodnoty: `true` nebo `false`. 
+
+Opravený kód by měl vypadat následovně:
+
+```csharp
+bool stav = false; // nebo true, pokud chcete inicializovat proměnnou
+```
+
+Pokud chcete inicializovat proměnnou `stav` na `false`, je to nejvhodnější volba. Pokud se nejedná o speciální případ, kdy byste měli `stav` být `true`, můžete ho inicializovat takto:
+
+```csharp
+bool stav = true;
+```
+
+Je důležité si uvědomit, že `bool` je jedním z nejzákladnějších datových typů v C# a může mít pouze dvě možné hodnoty."
+qwen-csharp;7;11,48;"Console.WriteLine(neexistujici);";"V kódu `Console.WriteLine(neexistujici);` je výjimka, protože `neexistujici` není definováno jako proměnnou nebo konstantu. Toto může být následující situace:
+
+1. `neexistujici` není definováno jako žádná proměnná nebo konstanta.
+2. `neexistujici` není v kódu, který jste poskytl.
+
+Opravený kód by měl být:
+
+```csharp
+Console.WriteLine(""Název proměnné nebo konstanty není definován."");
+```
+
+Pokud chcete, aby se výstup závisel na konkrétním názvu proměnné nebo konstanty, musíte určit, kterou proměnnou nebo konstantu chcete vypsat. Například:
+
+```csharp
+string nizkePocasi = ""Zima"";
+Console.WriteLine(nizkePocasi);
+```
+
+Pokud se vám to nepodaří, prosím poskytněte více kontextu nebo příkladu kódu, abych mohl pomoci lépe."
+qwen-csharp;8;13,14;"int x = 5; if (x = 10) Console.WriteLine(x);";"V zadání je chyba v logice použití operatoru rovnosti (=) ve větě `if (x = 10)`. Tento operator v C# používá pro přiřazení hodnoty, což znamená, že `x = 10` přiřadí hodnotu 10 k proměnné `x` a vrátí hodnotu 10 (nebo `true` v logickém kontextu). Proto `if` blok bude spustit, protože `x = 10` vrátí hodnotu 10, což je `true` v logickém kontextu.
+
+Opravený kód by měl vypadat následovně:
+
+```csharp
+int x = 5;
+if (x == 10) // Odebráno přiřazení a nahrazeno rovností
+    Console.WriteLine(x);
+```
+
+V tomto opraveném kódu se `if` blok pouze spustí, pokud je `x` roven 10, což je pravdivé pouze v případě, že `x` bude 10. V jiném případě (když je `x` 5) `if` blok nebude spustit a `Console.WriteLine(x)` nebude spustit."
+qwen-csharp;9;8,21;"int cislo = 3.14;";"V zadaném kódu je chyba. V C# nemůžete při deklaraci proměnné použít číslo s desetinnou míšenou. Proměnná musí být deklarována předem a pak můžete nastavit její hodnotu. 
+
+Opravený kód by měl vypadat následovně:
+
+```csharp
+int cislo = 3; // Změněná hodnota na celé číslo
+```
+
+Pokud byste chtěl mít desetinné číslo, bylo by toto možné, pokud byste použili float nebo double typy, ale v tomto případě byste měli použít celé číslo, pokud si chcete použít proměnnou typu `int`."
+qwen-csharp;10;4,90;"string text = ""Ahoj""; Console.WriteLine(text.Lenght);";"V kódu je chyba v metodě `Lenght` - to není správně. V C# není metoda `Lenght` na typu `string`. Metoda pro získání délky stringu je `Length`. 
+
+Opravený kód vypadá následovně:
+
+```csharp
+string text = ""Ahoj"";
+Console.WriteLine(text.Length);
+```
+
+Tento kód vypíše počet znaků v textu ""Ahoj"", což je 3."
+llama-csharp;1;11,17;"int cislo = ""10""; Console.WriteLine(cislo);";"Chyba v kódu je, že se attemptuje assignovat stringu ""10"" do proměnné `cislo`, která je vyhrazena pro numerické typy. V C# je `int` typ, který může být assignmentován pouze numerickým typům, jako je `int`, `float`, `double`, `bool`, `char`, `byte`, `sbyte`, `short`, `ushort`, `long`, `ulong`, `decimal`, `object`.
+
+Kód je chybný, protože se attemptuje assignovat stringu ""10"" do proměnné `cislo`, která je vyhrazena pro numerické typy. 
+
+Opravený kód:
+```csharp
+int cislo = 10; // Proměnná `cislo` je vyhrazena pro numerické typy
+Console.WriteLine(cislo); // Vypíše číslo 10
+```
+Alternatively, pokud chcete assignmentovat stringu do proměnné `cislo`, můžete použít typ `string`:
+```csharp
+string cislo = ""10""; // Proměnná `cislo` je vyhrazena pro typy string
+Console.WriteLine(cislo); // Vypíše string ""10""
+```"
+llama-csharp;2;5,65;"int x = 10 Console.WriteLine(x);";"Chyba v kódu je, že se variable `x` nebyla proměnnou deklarována. V C# je nutná deklarace proměnné před používáním.
+
+Chyba: `int x = 10` - chybí deklarace proměnné `x`.
+
+Korrektní kód:
+```csharp
+int x = 10;
+Console.WriteLine(x);
+```
+V tomto kódu je proměnná `x` deklarována jako `int` a poté se může být použita pro výpis hodnoty `10` na konzoli."
+llama-csharp;3;7,76;"string text = null; Console.WriteLine(text.Length);";"Chyba v kódu je, že se attempt to access null reference. To znamená, že se snažíme vyhodit hodnotu `text.Length`, ale `text` je null.
+
+V C# je nutný check, aby se ujistilo, že se vyhodí hodnotu `text.Length` pouze, pokud `text` není null. 
+
+Opravený kód:
+```csharp
+string text = null;
+if (text != null)
+{
+    Console.WriteLine(text.Length);
+}
+else
+{
+    Console.WriteLine(""Text je null"");
+}
+```
+Alternatively, můžete použít null-coalescing operator (`??`):
+```csharp
+string text = null;
+Console.WriteLine(text?.Length ?? 0);
+```
+V tomto případě se vyhodí hodnotu `text.Length` pouze, pokud `text` není null. Pokud `text` je null, vyhodí se hodnot 0."
+llama-csharp;4;6,40;"int[] pole = {1, 2, 3}; Console.WriteLine(pole[3]);";"Chyba v kódu je, že se snaží accessovat index 3 v pole, které má pouze 3 prvky (indexy 0, 1 a 2). Index 3 je mimo hranice pole a způsobuje chybu ""Index out of range"".
+
+Opravený kód:
+```csharp
+int[] pole = {1, 2, 3}; 
+Console.WriteLine(pole[2]); // nebo pole[0], pole[1] 
+// nebo Console.WriteLine(""Pole má pouze 3 prvky."");
+```
+V opačném případě by bylo lépe vyhodnotit, že pole má pouze 3 prvky, než se snaží accessovat index, který je mimo hranice."
+llama-csharp;5;12,01;"int a = 10; int b = 0; Console.WriteLine(a / b);";"Chyba v kódu je, že se snaží division by zero, tj. se snaží dividovat číslo `a` (10) przez číslo `b` (0). V C# je division by zero invalidní a způsobuje chybu `DivideByZeroException`.
+
+Opravený kód by měl zahrnovat kontrolu, zda se chce dividovat číslo `b` (0), nebo ne. Pokud je `b` 0, by měl být program vyhodnocen nebo vyhodnocen chybový message. 
+
+Zde je opravený kód:
+```csharp
+int a = 10; int b = 0;
+if (b == 0)
+{
+    Console.WriteLine(""Chyba: Division by zero!"");
+}
+else
+{
+    Console.WriteLine(a / b);
+}
+```
+Alternatively, můžete použít try-catch bloky, aby se vyhodnotla chyba a vyhodnocen chybový message:
+```csharp
+int a = 10; int b = 0;
+try
+{
+    Console.WriteLine(a / b);
+}
+catch (DivideByZeroException ex)
+{
+    Console.WriteLine(""Chyba: "" + ex.Message);
+}
+```
+V obou případech by měl být program vyhodnocen a vyhodnocen chybový message, pokud se pokusíte dividovat číslo `b` (0)."
+llama-csharp;6;6,16;"bool stav = 5;";"Chyba v kódu je, že se attempt to convert from string ""5"" to int. 
+
+Původní kód:
+```csharp
+bool stav = 5;
+```
+Chyba: `bool` je typ, který může mít pouze dvě hodnoty: `true` nebo `false`. Proto cannot být `5` assignment.
+
+Opravený kód:
+```csharp
+bool stav = true;
+```
+ nebo
+```csharp
+bool stav = false;
+```
+ nebo
+```csharp
+int stav = 5;
+```
+Poznámka: Pokud chcete assignment `5` do `stav` proměnné, musíme použít typ `int` místo `bool`."
+llama-csharp;7;7,44;"Console.WriteLine(neexistujici);";"Chyba v kódu je, že se snaží vytipovat konstantu `neexistujici`, která neexistuje v C#. V C# existuje konstanta `Console.WriteLine` je funkční metoda, která vytipuje výstup na konzoli.
+
+Opravený kód by měl vypadat takto:
+
+```csharp
+Console.WriteLine(""Neexistuje konstanta"");
+```
+
+ nebo
+
+```csharp
+Console.WriteLine(""Neexistuje konstanta"");
+Console.WriteLine(""Neexistuje konstanta"");
+```
+
+Poznámka: Pokud chcete vytipovat konstantu, musí existovat v C# a musí být vytipována správným způsobem. Například:
+
+```csharp
+const string NEISTIJICHI = ""Neexistuje konstanta"";
+Console.WriteLine(NEISTIJICHI);
+```"
+llama-csharp;8;8,83;"int x = 5; if (x = 10) Console.WriteLine(x);";"Chyba v kódu je v operatoru rovnosti (=) a rovnost (==). Operator rovnosti (=) se používá k assignments, tj. přiřazení hodnoty do proměnné. Operator rovnost (==) se používá k porovnání hodnot.
+
+V tomto případě chcete porovnat hodnot proměnné `x` s hodnotem `10`, ale kódu se používá operator rovnosti (=), který assignments. To způsobuje, že `x` bude assignments hodnotu `10`, nikoli že bude porovnán s hodnotou `10`.
+
+Opravený kód by měl vypadat takto:
+
+```csharp
+int x = 5;
+if (x == 10) Console.WriteLine(x);
+```
+
+V tomto kódu se používá operator rovnost (==), který porovnává hodnot `x` s hodnotem `10`, a pokud jsou shodné, je výsledek `true`, jinak `false`."
+llama-csharp;9;4,87;"int cislo = 3.14;";"Chyba v kódu je, že se attempt to convert a string to a double failed. 
+
+Původní kód:
+```csharp
+int cislo = 3.14;
+```
+
+Chyba: V C# cannot be assigned to an integer variable a floating-point number. 
+
+Opravený kód:
+```csharp
+double cislo = 3.14;
+```
+
+V opraveném kódu používám typ `double` místo `int`, který je schopen zpracovat i floating-point čísla."
+llama-csharp;10;10,14;"string text = ""Ahoj""; Console.WriteLine(text.Lenght);";"Chyba v kódu je v řádku `Console.WriteLine(text.Lenght);`.
+
+Původní chyba je:
+- `Lenght` by mělo být `Length` (velmi podobný, ale s malým písmenem ""e"" na konci)
+- `text` by mělo být `text` (používá se `text` jako variable, ale je také název třídy v C#, proto je nutný `text.`)
+
+Opravený kód:
+```csharp
+string text = ""Ahoj"";
+Console.WriteLine(text.Length);
+```
+V opačném pořadí by se could vyhodnotit jako:
+- `text` by mělo být `text` (používá se `text` jako variable, ale je také název třídy v C#, proto je nutný `text.`)
+- `Length` by mělo být `length` (používá se `length` jako property v C#, proto je nutný `length`)
+
+Opravený kód by se vyhodnotil jako:
+```csharp
+string text = ""Ahoj"";
+Console.WriteLine(text.Length);
+```"
