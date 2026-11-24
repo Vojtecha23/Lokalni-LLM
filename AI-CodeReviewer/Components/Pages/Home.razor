@@ -1,0 +1,59 @@
+@page "/"
+@page "/benchmark"
+@page "/history"
+@rendermode InteractiveServer
+@using LocalReviewer
+@inject NavigationManager Nav
+@implements IDisposable
+<PageTitle>AI Code Reviewer</PageTitle>
+<div class="studio">
+<header><div><small>LOCAL WORKSPACE / C#</small><h1>AI Code Reviewer</h1><p>Qwen 2.5 · Llama 3.2 · Roslyn</p></div><span class="pill">LOKÁLNÍ API</span></header>
+<nav class="tabs"><NavLink href="" Match="NavLinkMatch.All">Analýza</NavLink><NavLink href="benchmark">Benchmark</NavLink><NavLink href="history">Historie a statistiky</NavLink></nav>
+@if (!string.IsNullOrEmpty(Error)) { <div class="bad notice">@Error</div> }
+@if(Busy){<section><strong>@Status</strong><progress max="@Total" value="@Done"></progress><button class="sub" @onclick="Cancel">Zastavit</button></section>}
+@if (Page == "benchmark") {
+<section><h2>Benchmark modelů</h2><p>30 úloh, tři obtížnosti. Každá úloha je zadána oběma modelům bez historie chatu.</p>
+<label>Obtížnost <select @bind="Level" disabled="@Busy"><option>Všechny</option><option>Lehká</option><option>Střední</option><option>Těžká</option></select></label>
+<label class="check"><input type="checkbox" @bind="Retry" disabled="@Busy"/> Samooprava (max. 3 pokusy)</label>
+<label class="check"><input type="checkbox" @bind="Compare" disabled="@Busy"/> Porovnat režim bez samoopravy i se samoopravou</label>
+<button @onclick="Benchmark" disabled="@Busy">Spustit benchmark (@Selected.Count() úloh)</button></section>
+<section><h2>Testovací sada</h2><div class="exercise-grid">@foreach(var x in Selected){<details><summary>@x.Name <small>@x.Level</small></summary><pre>@x.Code</pre></details>}</div></section>
+} else if(Page == "history") {
+<section><div class="line"><h2>Historie výsledků</h2><a class="download" href="@ExportUrl" download="vysledky.csv">Export CSV</a></div>
+<label>Režim <select @bind="Filter"><option>Vše</option><option>Bez samoopravy</option><option>Se samoopravou</option></select></label>
+<div class="stats">@foreach(var m in ReviewEngine.Models){var list=Filtered.Where(e=>e.Result.Model==m).ToList();var count=list.Count;var first=list.Count(e=>e.Result.Attempts[0].Compiled);var last=list.Count(e=>e.Result.Last.Compiled);<article><h3>@m</h3><p>@count výsledků</p><small>První kompilace: @first / @count</small><progress max="@(Math.Max(1,count))" value="@first"></progress><small>Poslední kompilace: @last / @count</small><progress max="@(Math.Max(1,count))" value="@last"></progress><p>Průměrný čas: @(count==0?"—":list.Average(e=>e.Result.Seconds).ToString("F2")+" s")</p><p>Průměrné tokeny: @(count==0?"—":list.Average(e=>e.Result.Tokens).ToString("F0"))</p></article>}</div>
+<p>Statistiky zahrnují ruční analýzy i benchmarky. Kompilace neověřuje logiku.</p>
+@foreach(var e in Filtered){<details class="history"><summary>@e.Date · @e.Name · @e.Result.Model · @(e.Result.Last.Compiled?"OK":"Chyba") · @e.Result.Seconds.ToString("F2") s</summary><h4>Zdroj</h4><pre>@e.Source</pre>@foreach(var a in e.Result.Attempts){<h4>Pokus @a.Number · @a.Seconds.ToString("F2") s · @a.Tokens tokenů</h4><pre>@a.Diagnostics</pre><pre>@a.Answer</pre>}</details>}
+</section>
+} else {
+<section><h2>Zdrojový kód</h2><textarea spellcheck="false" @bind="Source" disabled="@Busy"></textarea><label class="check"><input type="checkbox" @bind="Retry" disabled="@Busy"/> Automatická samooprava</label><div class="line"><button @onclick="Analyze" disabled="@Busy">Analyzovat oba modely</button><button class="sub" @onclick="Example" disabled="@Busy">Ukázka</button><button class="sub" @onclick="Clear" disabled="@Busy">Vymazat</button></div></section>
+@if(Original != null){<section><h2>Kontrola původního kódu</h2><pre class="@(Original.Value.Ok?"good":"bad")">@Original.Value.Message</pre></section>}
+}
+@if(Page != "history"){
+<div class="stats">@foreach(var r in Latest){<article><h2>@r.Model</h2><div class="metrics"><span>@r.Seconds.ToString("F2") s</span><span>@r.Attempts.Count pokusů</span><span>@r.Tokens tokenů</span></div><pre class="@(r.Last.Compiled?"good":"bad")">@r.Last.Diagnostics</pre><h4>Navržený kód</h4><pre>@r.Last.Code</pre><h4>Odpověď</h4><pre>@r.Last.Answer</pre><details><summary>Historie pokusů</summary>@foreach(var a in r.Attempts){<h4>Pokus @a.Number</h4><pre>@a.Diagnostics</pre><pre>@a.Answer</pre>}</details></article>}</div>
+@if(Latest.Count>0){<section><a class="download" href="history">Zobrazit všechny uložené výsledky</a><p>Úspěšná kompilace nezaručuje správnou funkčnost. Kód nebyl spuštěn.</p></section>}}
+<footer>Ollama / Roslyn / SQLite · Kód se pouze kompiluje, nikdy automaticky nespouští.</footer>
+</div>
+@code {
+string Page => Nav.ToBaseRelativePath(Nav.Uri).Split('?')[0].Trim('/');
+string Source="int cislo = \"10\";\nConsole.WriteLine(cislo);", Level="Všechny", Filter="Vše", Error="", Status="";
+bool Retry=true, Compare=false, Busy=false;
+int Total=1, Done=0;
+CancellationTokenSource? Cts;
+(bool Ok,string Message)? Original;
+List<Review> Latest=new(); List<Entry> Entries=new();
+IEnumerable<Exercise> Selected=>Exercises.All.Where(x=>Level=="Všechny"||x.Level==Level);
+IEnumerable<Entry> Filtered=>Entries.Where(e=>Filter=="Vše"||(Filter=="Se samoopravou"?e.Retry:!e.Retry));
+string ExportUrl=>"data:text/csv;charset=utf-8;base64,"+Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("\uFEFF"+ReviewEngine.Csv(Filtered)));
+protected override void OnInitialized(){try{Entries=ReviewEngine.History();}catch(Exception ex){Error=ex.Message;}}
+void Example(){Source=Exercises.All[10].Code;}
+void Clear(){Source="";Latest.Clear();Original=null;Error="";}
+void Cancel()=>Cts?.Cancel();
+async Task Analyze(){if(string.IsNullOrWhiteSpace(Source)){Error="Vlož kód.";return;} Original=ReviewEngine.Compile(Source);await Execute(new[]{new Exercise("Ruční analýza","Vlastní",Source)},new[]{Retry});}
+async Task Benchmark()=>await Execute(Selected.ToArray(),Compare?new[]{false,true}:new[]{Retry});
+async Task Execute(Exercise[] tests,bool[] modes){if(Busy)return;Busy=true;Error="";Done=0;Total=tests.Length*modes.Length*2;Latest.Clear();Cts=new();try{foreach(var t in tests)foreach(var mode in modes){Latest.Clear();foreach(var model in ReviewEngine.Models){var r=await ReviewEngine.Run(model,t.Code,mode,s=>{Status=$"{Done}/{Total} · {t.Name} · {s}";_ = InvokeAsync(StateHasChanged);},Cts.Token);ReviewEngine.Save(new Entry(Guid.NewGuid().ToString(),DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),t.Name,t.Level,t.Code,mode,r));Latest.Add(r);Done++;await InvokeAsync(StateHasChanged);}}Status="Dokončeno";}catch(OperationCanceledException){Error="Testování zastaveno. Dokončené výsledky jsou uloženy.";}catch(Exception ex){Error="Chyba: "+ex.Message;}finally{Busy=false;Cts.Dispose();Cts=null;try{Entries=ReviewEngine.History();}catch(Exception ex){Error=ex.Message;}}}
+public void Dispose(){Cts?.Cancel();}
+}
+<style>
+.studio{background:#0c111b;color:#e7edf6;min-height:100vh;padding:clamp(16px,4vw,48px);font-family:system-ui,sans-serif} .studio header,.studio .line{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap} .studio header small,.studio small{color:#9baac0} .studio h1{font-size:clamp(28px,4vw,42px);letter-spacing:-1px;margin:8px 0}.studio p{color:#aebbd0}.pill{border:1px solid #405470;border-radius:30px;padding:8px 14px;color:#aebbd0;font-size:12px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:24px 0}.tabs a,.download{color:#b7c5ff;text-decoration:none;padding:10px 14px;border:1px solid #34435b;border-radius:8px}.tabs a.active{background:#26375d;color:white}.studio section,.studio article{background:#151e2e;border:1px solid #2a374d;padding:20px;border-radius:14px;margin-bottom:16px;min-width:0}.studio h2{font-size:20px}.studio h4{font-size:14px;color:#acb9cc;margin-top:20px}.studio textarea,.studio pre{width:100%;background:#090e17;color:#b7d9ff;border:1px solid #334155;border-radius:8px;padding:15px;font:14px/1.6 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.studio textarea{min-height:230px;resize:vertical}.studio pre{max-height:460px;overflow:auto}.studio button,.studio select{background:#4f46e5;color:white;border:1px solid #6366f1;padding:10px 16px;border-radius:8px;font-weight:600}.studio button.sub,.studio select{background:#243249;border-color:#405470}.studio button:disabled{opacity:.45}.studio .check{display:block;margin:14px 0}.studio .stats,.exercise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.studio .metrics{display:flex;gap:12px;flex-wrap:wrap;color:#b7c5ff;margin-bottom:14px}.studio .good{background:#092b20;color:#a1edbb;border-color:#226344}.studio .bad{background:#40191e;color:#ffc0c0;border-color:#87404a}.notice{padding:12px;border-radius:8px;margin-bottom:12px}.studio progress{display:block;width:100%;height:12px;accent-color:#818cf8;margin:10px 0 16px}.studio details{border:1px solid #334155;padding:12px;border-radius:8px;margin:6px 0}.studio summary{cursor:pointer}.studio footer{font-size:12px;color:#8292aa;text-align:center;padding:20px}.studio .line{justify-content:flex-start}.studio select{margin-left:8px} @@media(max-width:800px){.studio .stats,.exercise-grid{grid-template-columns:1fr}}
+</style>
